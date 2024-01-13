@@ -1,36 +1,54 @@
+# Suru
+
+## A Todo App
+
+> Suru (する): Japanese for "to do"
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
 
-First, run the development server:
+Preliminary requirement: [install](https://bun.sh/docs/installation#installing) `bun`
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+npm i -g bun
+```
+
+Install packages and run the dev server:
+
+```bash
+bun i
 bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Info
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Tools/packages implemented
 
-## Learn More
+- [`bun`](https://bun.sh/)
+  - Blazingly fast Javascript runtime
+- [`next`](https://nextjs.org/)
+  - Next.js with the app router
+  - RSC (React Server Components)
+  - Server actions
+  - Typescript
+- [`zod`](https://zod.dev/)
+  - Type-safe validation library
+- [`tailwindcss`](https://tailwindcss.com/)
+  - Atomic CSS framework
+- [`clsx`](https://github.com/lukeed/clsx) and [`tailwind-merge`](https://github.com/dcastil/tailwind-merge)
+  - Dynamic class list helpers
+- [`react-icons`](https://react-icons.github.io/react-icons/)
+  - React Icon components for all major open source icon sets
+- `eslint` and `prettier`
+  - Industry standard code linting and formatting
 
-To learn more about Next.js, take a look at the following resources:
+### Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Nearly all of the components used are RSC (React Server Components) with the exception of the two button components. These button components are only using the `useFormStatus` hook from `react-dom` to add a loading spinner for when the forms they are in are submitting.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Because the mock API does not persist the complete status for todos, I've added a simple server-side in-memory state of the completed todos, simulating a remote database. This server-side in-memory state can be reset with the "Reset" button on the home page.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Because all of the todos from the mock API have due dates in the past, I've added a static todo in to the list that's due in the future to display the difference between past due and regular todos. This static todo can also be completed because of the in-memory completed state.
