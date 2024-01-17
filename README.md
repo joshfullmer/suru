@@ -8,7 +8,10 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
-Preliminary requirement: [install](https://bun.sh/docs/installation#installing) `bun`
+Preliminary requirements:
+
+- Use node `v20.8.0` or higher
+- [install](https://bun.sh/docs/installation#installing) `bun`
 
 ```bash
 npm i -g bun

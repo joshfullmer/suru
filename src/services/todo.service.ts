@@ -7,9 +7,9 @@ import { z } from 'zod';
 
 // Because of the mock API, completed todos are not persisted
 // This simulates the completed todos
-let completedTodos: string[] = [];
+let completedStatusById: Record<string, boolean> = {};
 
-export const getTodos = async (): Promise<Result<TodoList>> => {
+export const getTodoList = async (): Promise<Result<TodoList>> => {
 	const response = await fetch(
 		'https://944ba3c5-94c3-4369-a9e6-a509d65912e2.mock.pstmn.io/get',
 		{
@@ -51,9 +51,15 @@ export const getTodos = async (): Promise<Result<TodoList>> => {
 		},
 	];
 
+	for (const todo of todoList) {
+		if (completedStatusById[todo.id] == null) {
+			completedStatusById[todo.id] = todo.isComplete;
+		}
+	}
+
 	const todoListWithCompleted = todoList.map((todo) => ({
 		...todo,
-		...(completedTodos.includes(todo.id) && { isComplete: true }),
+		isComplete: completedStatusById[todo.id],
 	}));
 
 	const sortedTodoList = todoListWithCompleted.toSorted((a, b) => {
@@ -86,24 +92,13 @@ export const getTodos = async (): Promise<Result<TodoList>> => {
 	};
 };
 
-export async function completeTodo(formData: FormData): Promise<Result<void>> {
-	const formEntries = Object.fromEntries(formData.entries());
-
-	const parsedFormEntries = z
-		.object({
-			todoId: z.string(),
-		})
-		.safeParse(formEntries);
-
-	if (!parsedFormEntries.success) {
-		return {
-			ok: false,
-			error: new Error(parsedFormEntries.error.issues[0].message),
-		};
-	}
-
-	const { todoId } = parsedFormEntries.data;
-
+async function updateTodo({
+	todoId,
+	isComplete,
+}: {
+	todoId: string;
+	isComplete: boolean;
+}): Promise<Result<void>> {
 	const response = await fetch(
 		`https://944ba3c5-94c3-4369-a9e6-a509d65912e2.mock.pstmn.io/patch/${todoId}`,
 		{
@@ -113,7 +108,7 @@ export async function completeTodo(formData: FormData): Promise<Result<void>> {
 					'PMAK-65a2d3424d0cd25ba8be6f74-170a6d531bbf8e1919b601302d490766c6',
 			},
 			body: JSON.stringify({
-				isComplete: true,
+				isComplete,
 			}),
 		},
 	);
@@ -146,15 +141,59 @@ export async function completeTodo(formData: FormData): Promise<Result<void>> {
 		};
 	}
 
-	completedTodos.push(todoId);
+	completedStatusById[todoId] = isComplete;
 
 	revalidatePath('/');
 
 	return { ok: true, data: undefined };
 }
 
+export async function completeTodo(formData: FormData): Promise<Result<void>> {
+	const formEntries = Object.fromEntries(formData.entries());
+
+	const parsedFormEntries = z
+		.object({
+			todoId: z.string(),
+		})
+		.safeParse(formEntries);
+
+	if (!parsedFormEntries.success) {
+		return {
+			ok: false,
+			error: new Error(parsedFormEntries.error.issues[0].message),
+		};
+	}
+
+	const { todoId } = parsedFormEntries.data;
+
+	return await updateTodo({ todoId, isComplete: true });
+}
+
+export async function uncompleteTodo(
+	formData: FormData,
+): Promise<Result<void>> {
+	const formEntries = Object.fromEntries(formData.entries());
+
+	const parsedFormEntries = z
+		.object({
+			todoId: z.string(),
+		})
+		.safeParse(formEntries);
+
+	if (!parsedFormEntries.success) {
+		return {
+			ok: false,
+			error: new Error(parsedFormEntries.error.issues[0].message),
+		};
+	}
+
+	const { todoId } = parsedFormEntries.data;
+
+	return await updateTodo({ todoId, isComplete: false });
+}
+
 export async function resetCompleted(): Promise<Result<void>> {
-	completedTodos = [];
+	completedStatusById = {};
 
 	revalidatePath('/');
 

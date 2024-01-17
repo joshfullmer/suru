@@ -1,4 +1,8 @@
-import { completeTodo, getTodos as getTodoList } from '@/services/todo.service';
+import {
+	completeTodo,
+	getTodoList,
+	uncompleteTodo,
+} from '@/services/todo.service';
 import { cn } from '@/utils/cn.util';
 import { formatDate } from '@/utils/date.util';
 import { CompleteTodoButton } from './complete-todo-button';
@@ -33,7 +37,7 @@ export async function TodoList() {
 					)}
 				</div>
 
-				<form action={completeTodo}>
+				<form action={todo.isComplete ? uncompleteTodo : completeTodo}>
 					<CompleteTodoButton todo={todo} />
 				</form>
 			</div>
